@@ -8,22 +8,17 @@ require '../vendor/autoload.php';
 require '../src/config/db.php';
 require '../src/auxiliares/funciones.php';
 
-
 $app = new \Slim\App;
-require '../src/middleware/authentication.php';
+// require '../src/middleware/authentication.php';
+
+$container = $app->getContainer();
+$container['upload_directory'] = __DIR__ . '/images';
 
 // Customer routes
-require '../src/routes/drogaxdosis.php';
-require '../src/routes/pastillero.php';
-require '../src/routes/droga.php';
-require '../src/routes/compra.php';
-require '../src/routes/stock.php';
-require '../src/routes/armarpastillero.php';
-require '../src/routes/usuario.php';
-require '../src/routes/oauth.php';
+require '../src/routes/rogue.php';
+require '../src/routes/episode.php';
+require '../src/routes/game.php';
 require '../src/routes/cors.php';
 
 
 $app->run();
-
-// echo('hla');

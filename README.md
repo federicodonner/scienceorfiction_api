@@ -1,1 +1,1 @@
-# API de Science or Fiction
+# API for Science or Fiction
