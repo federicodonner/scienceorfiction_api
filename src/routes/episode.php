@@ -40,7 +40,7 @@ $app->get('/api/episode/{id}', function (Request $request, Response $response) {
         $episode = $episodes[0];
 
         // Finds the games that were played in that episode
-        $sql = "SELECT g.id as gameId, g.theme, CONCAT(r.firstName, ' ', r.lastName) as hostName FROM game g LEFT JOIN rogue r on g.hostId = r.id WHERE episodeId = $episodeId";
+        $sql = "SELECT g.id as gameId, g.theme, CONCAT(r.firstName, ' ', r.lastName) as hostName, g.hostId FROM game g LEFT JOIN rogue r on g.hostId = r.id WHERE episodeId = $episodeId";
 
         $stmt = $db->query($sql);
         $games = $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -50,10 +50,21 @@ $app->get('/api/episode/{id}', function (Request $request, Response $response) {
         foreach ($games as $game) {
             $gameId = $game->gameId;
 
-            $sql = "SELECT id, text, fact FROM item WHERE gameId = $gameId ORDER BY sortOrder";
+            $sql = "SELECT id, itemText, fiction FROM item WHERE gameId = $gameId ORDER BY sortOrder";
 
             $stmt = $db->query($sql);
             $items = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            // For each items, finds the rogue responses
+            foreach ($items as $item) {
+                $itemId = $item->id;
+                $sql = "SELECT rxi.fiction, r.rogueId, CONCAT(ro.firstName, ' ', ro.lastName) as rogueName  FROM response_x_item rxi LEFT JOIN response r on rxi.responseId = r.id LEFT JOIN rogue ro ON r.rogueId = ro.id WHERE itemId = $itemId ORDER BY r.responseOrder";
+
+                $stmt = $db->query($sql);
+                $responses = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+                $item->responses = $responses;
+            }
 
             $game->items = $items;
         }
@@ -117,7 +128,7 @@ $app->post('/api/episode', function (Request $request, Response $response) {
         $gameHostId = $request->getParam('gameHostId');
         $gameTheme = $request->getParam('gameTheme');
         $gameItems = $request->getParam('gameItems');
-        if ($gameHostId && $gameTheme && $gameItems) {
+        if ($gameHostId && $gameItems) {
 
             // Verifies that the host exists
             $sql = "SELECT * FROM rogue WHERE id = $gameHostId";

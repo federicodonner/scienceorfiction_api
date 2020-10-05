@@ -18,6 +18,7 @@ $container['upload_directory'] = __DIR__ . '/images';
 require '../src/routes/rogue.php';
 require '../src/routes/episode.php';
 require '../src/routes/game.php';
+require '../src/routes/response.php';
 require '../src/routes/cors.php';
 
 
